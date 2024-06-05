@@ -25,4 +25,4 @@ Note, that if you do not know your cpu architecture, you can just delete the -fl
 
 Please enjoy, and share!
 
-By: Marcus Engsig
+By: Marcus Engsig & Mikkel Peternsen

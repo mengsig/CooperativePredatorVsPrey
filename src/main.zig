@@ -19,16 +19,16 @@ const SPLIT_ADD: f32 = 1.0 * DT;
 const DEFAULT_ENERGY_LOSS: f32 = SPLIT_ADD / 5;
 const ENERGY_SCALE_LOSS: f32 = 0.025;
 const DEFAULT_DIGESTION_RATE: f32 = 1;
-const RADIUS: f32 = 5.0;
+const RADIUS: f32 = 4.0;
 const AGENTNO: u16 = 1500;
 const RADIUS2: f32 = RADIUS * RADIUS;
 const SPLIT_MAX: f32 = 100.0;
 const SPLIT_DECAY: f32 = 0.2 * DT;
 const DIGESTION_MAX: f32 = 25;
 const NUMBER_OF_RAYS: usize = 30;
-const VISION_LENGTH: f32 = 300;
+const VISION_LENGTH: f32 = @floatFromInt(GRID_SIZE / 2);
 const PREY_FOV: f32 = 300.0 / 180.0 * math.pi;
-const PREDATOR_FOV: f32 = 80.0 / 180.0 * math.pi;
+const PREDATOR_FOV: f32 = 90.0 / 180.0 * math.pi;
 const FNUMBER_OF_RAYS: f32 = @floatFromInt(NUMBER_OF_RAYS);
 const MOMENTUM: f32 = 0.95;
 
@@ -227,20 +227,18 @@ const agent = struct {
         if ((dsum == 0) and (thetasum == 0)) {
             thetasum = 0.2;
         }
-        if ((thetasum == 0) and (dsum == 0)) {
-            self.theta += 0.2 * DT;
-            self.vel += 0;
-        } else {
-            if (self.energy == 0) {
-                self.vel = 0;
-                if (self.species == Species.predator) {
-                    self.is_dead = true;
-                }
-            } else {
-                self.vel += dsum * DT;
-            }
-            self.theta += thetasum / 10 * DT;
+        if (self.vel * self.vel < 1e-5) {
+            self.theta += 6.28 / 100.0 * DT;
         }
+        if (self.energy == 0) {
+            self.vel = 0;
+            if (self.species == Species.predator) {
+                self.is_dead = true;
+            }
+        } else {
+            self.vel += dsum * DT;
+        }
+        self.theta += thetasum / 10 * DT;
         self.vel = self.vel * MOMENTUM;
     }
 
@@ -400,7 +398,7 @@ pub fn main() !void {
     //Test different allocators for speed
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
-    const num_threads = 12;
+    const num_threads = 14;
     const chunk_size = AGENTNO / num_threads;
 
     var ourArray: [AGENTNO]agent = undefined;
